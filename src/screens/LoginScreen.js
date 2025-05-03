@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
   const handleLogin = () => {
-    // lógica de autenticação vai aqui (vamos fazer depois com Firebase)
+    // Aqui entraria a lógica de autenticação (Firebase, por exemplo)
     console.log('Email:', email);
     console.log('Senha:', senha);
+
+    // Após login bem-sucedido, redireciona para a Home
+    navigation.navigate('Home');  // Alteração para usar "navigate" ao invés de "replace"
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Faça login</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -21,6 +25,7 @@ export default function LoginScreen() {
         value={email}
         keyboardType="email-address"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Senha"
@@ -28,6 +33,7 @@ export default function LoginScreen() {
         value={senha}
         secureTextEntry
       />
+
       <Button title="Entrar" onPress={handleLogin} color="#2E7D32" />
     </View>
   );

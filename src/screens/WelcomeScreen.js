@@ -1,31 +1,61 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Image,
+  ImageBackground,
+  SafeAreaView,
+  StatusBar,
+  TouchableOpacity,
+} from 'react-native';
 
 export default function WelcomeScreen({ navigation }) {
   return (
-    <ImageBackground
-      source={require('../../assets/fundo.png')} // sua imagem de fundo
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <View style={styles.overlay}>
-        <Image
-          source={require('../../assets/LOGO.PNG.png')} // sua logo central
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Bem-vindo ao Recicla Arcoverde!</Text>
-        <Button
-          title="Ir para Login"
-          onPress={() => navigation.navigate('Login')}
-          color="#2E7D32"
-        />
-      </View>
-    </ImageBackground>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="rgba(0, 0, 0, 0.99)" />
+
+      <SafeAreaView style={styles.safeArea}>
+        <ImageBackground
+          source={require('../../assets/fundo.jpg')}
+          style={styles.background}
+          resizeMode="cover"
+        >
+          <View style={styles.overlay}>
+            <Image
+              source={require('../../assets/LOGO.PNG.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>
+              CONTRIBUINDO PARA UM PLANETA SUSTENTÁVEL
+            </Text>
+          </View>
+
+          {/* Botão fixado na parte inferior */}
+          <View style={styles.bottomButtonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Login')} // Alteração para "navigate"
+            >
+              <Text style={styles.buttonText}>Entrar</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  safeArea: {
+    flex: 1,
+  },
   background: {
     flex: 1,
     width: '100%',
@@ -35,7 +65,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.8)', // leve camada branca transparente
     padding: 20,
   },
   logo: {
@@ -48,6 +77,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     color: '#2E7D32',
+    fontWeight: 'bold',
+  },
+  bottomButtonContainer: {
+    padding: 20,
+    backgroundColor: 'transparent',
+  },
+  button: {
+    backgroundColor: '#2E7D32',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
