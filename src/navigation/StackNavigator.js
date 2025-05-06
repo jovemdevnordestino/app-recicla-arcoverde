@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 // Importando as telas
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MapScreen from '../screens/MapScreen';
 
@@ -34,11 +33,7 @@ export default function StackNavigator() {
         component={LoginScreen}
         options={{ title: 'Entrar' }}
       />
-      <Stack.Screen
-        name="Register"
-        component={RegisterScreen}
-        options={{ title: 'Cadastrar' }}
-      />
+      
       <Stack.Screen
         name="Home"
         component={HomeScreen}
