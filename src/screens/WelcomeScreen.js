@@ -29,7 +29,7 @@ export default function WelcomeScreen({ navigation }) {
               resizeMode="contain"
             />
             <Text style={styles.title}>
-              CONTRIBUINDO PARA UM PLANETA SUSTENTÁVEL
+            CONTRIBUINDO PARA UM PLANETA SUSTENTÁVEL
             </Text>
           </View>
 

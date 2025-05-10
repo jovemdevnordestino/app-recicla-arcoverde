@@ -7,7 +7,10 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  Alert
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebase';
@@ -21,8 +24,11 @@ const LoginScreen = ({ navigation }) => {
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Erro', 'Preencha o e-mail e a senha.');
+    const trimmedEmail = email.trim();
+    const cleanPassword = password.replace(/\s+/g, '');
+
+    if (!trimmedEmail || !cleanPassword) {
+      setError('Preencha o e-mail e a senha corretamente.');
       return;
     }
 
@@ -30,7 +36,7 @@ const LoginScreen = ({ navigation }) => {
     setError(null);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, cleanPassword);
       console.log('Login bem-sucedido', userCredential);
 
       navigation.reset({
@@ -39,75 +45,89 @@ const LoginScreen = ({ navigation }) => {
       });
     } catch (err) {
       console.log('Erro ao logar:', err.message);
-      setError('E-mail ou senha inválidos.');
+
+      if (err.code === 'auth/user-not-found') {
+        setError('Usuário não encontrado.');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Senha incorreta.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('E-mail inválido.');
+      } else {
+        setError('Erro ao logar. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.title}>Bem-vindo de volta!</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.title}>Bem-vindo de volta!</Text>
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={20} color="#4B5563" style={styles.icon} />
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={styles.input}
-          placeholderTextColor="#9CA3AF"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={20} color="#4B5563" style={styles.icon} />
-        <TextInput
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={styles.input}
-          placeholderTextColor="#9CA3AF"
-        />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-          <Ionicons
-            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-            size={20}
-            color="#4B5563"
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail-outline" size={20} color="#4B5563" style={styles.icon} />
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.input}
+            placeholderTextColor="#9CA3AF"
           />
-        </TouchableOpacity>
-      </View>
+        </View>
 
-      {error && (
-        <Text style={styles.error}>
-          <Ionicons name="alert-circle-outline" size={16} color="red" /> {error}
-        </Text>
-      )}
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed-outline" size={20} color="#4B5563" style={styles.icon} />
+          <TextInput
+            placeholder="Senha"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            style={styles.input}
+            placeholderTextColor="#9CA3AF"
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color="#4B5563"
+            />
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Entrar</Text>
+        {error && (
+          <Text style={styles.error}>
+            <Ionicons name="alert-circle-outline" size={16} color="red" /> {error}
+          </Text>
         )}
-      </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.registerLink}>
-          Não tem conta? <Text style={{ fontWeight: 'bold' }}>Cadastre-se</Text>
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Entrar</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.registerLink}>
+            Não tem conta? <Text style={{ fontWeight: 'bold' }}>Cadastre-se</Text>
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#e6f2ec',
     alignItems: 'center',
     justifyContent: 'center',

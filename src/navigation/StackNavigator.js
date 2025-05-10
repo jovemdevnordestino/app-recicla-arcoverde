@@ -7,7 +7,9 @@ import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MapScreen from '../screens/MapScreen';
 import RegisterScreen from '../screens/RegisterScreen';
-
+import CatadoresTela from '../screens/CatadoresTela';  // Importando a tela CatadoresTela
+import DoadoresTela from '../screens/DoadoresTela';  // Importando a tela DoadoresTela
+import TipoUsuarioScreen from '../screens/TipoUsuarioScreen'; // Importando a tela TipoUsuarioScreen
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
@@ -46,10 +48,25 @@ export default function StackNavigator() {
         options={{ title: 'Pontos de Coleta' }}
       />
       <Stack.Screen
-       name="Register"
+        name="Register"
         component={RegisterScreen}
-        options={{ title:'Registro' }} />
-
+        options={{ title: 'Registro' }}
+      />
+      <Stack.Screen
+        name="CatadoresTela"
+        component={CatadoresTela} // Tela para catadores
+        options={{ title: 'Catadores' }}
+      />
+      <Stack.Screen
+        name="DoadoresTela"
+        component={DoadoresTela} // Tela para doadores
+        options={{ title: 'Doadores' }}
+      />
+      <Stack.Screen
+        name="TipoUsuario"
+        component={TipoUsuarioScreen}
+        options={{ title: 'Tipo de Usuário' }}
+      />
     </Stack.Navigator>
   );
 }
