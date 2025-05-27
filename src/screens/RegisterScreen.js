@@ -5,143 +5,203 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ImageBackground,
 } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../services/firebase';
 import { Ionicons } from '@expo/vector-icons';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth, db } from '../services/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
-const LoginScreen = ({ navigation }) => {
+const backgroundImage = require('../../assets/login.jpg');
+
+const RegisterScreen = ({ navigation }) => {
+  const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password) {
-      Alert.alert('Erro', 'Preencha o e-mail e a senha.');
+  const handleRegister = async () => {
+    const trimmedEmail = email.trim();
+    const trimmedSenha = senha.trim();
+    const trimmedConfirmarSenha = confirmarSenha.trim();
+
+    if (!nome || !trimmedEmail || !trimmedSenha || !trimmedConfirmarSenha) {
+      Alert.alert('Atenção novo(a) membro(a):', 'Preencha todos os campos.');
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
+    if (trimmedSenha !== trimmedConfirmarSenha) {
+      Alert.alert('Atenção novo(a) membro(a):', 'As senhas precisam ser iguais.');
+      return;
+    }
+
+    if (trimmedSenha.length < 6) {
+      Alert.alert('Atenção novo(a) membro(a):', 'A senha deve ter pelo menos 6 dígitos.');
+      return;
+    }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
-      console.log('Login bem-sucedido', userCredential);
+      const userCredential = await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedSenha);
+      const user = userCredential.user;
+
+      await sendEmailVerification(user);
+
+      await setDoc(doc(db, 'usuarios', user.uid), {
+        uid: user.uid,
+        nome,
+        email: trimmedEmail,
+      });
+
+      Alert.alert('Sucesso', 'Cadastro realizado! Verifique seu e-mail antes de continuar.');
 
       navigation.reset({
         index: 0,
         routes: [{ name: 'TipoUsuario' }],
       });
-    } catch (err) {
-      console.log('Erro ao logar:', err.message);
-      let message = 'Erro ao entrar. Tente novamente.';
-      if (err.code === 'auth/invalid-email') message = 'Email inválido.';
-      if (err.code === 'auth/user-not-found') message = 'Usuário não encontrado.';
-      if (err.code === 'auth/wrong-password') message = 'Senha incorreta.';
-      setError(message);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.log('Erro ao cadastrar:', error);
+      Alert.alert('Atenção novo(a) membro(a):', 'Esse Email já está em uso');
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       style={{ flex: 1 }}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Image source={require('../../assets/logo.png')} style={styles.logo} />
-          <Text style={styles.title}>Bem-vindo de volta!</Text>
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="cover">
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.overlay}>
+              <Text style={styles.title}>Criar Conta</Text>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#4B5563" style={styles.icon} />
-            <TextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              style={styles.input}
-              placeholderTextColor="#9CA3AF"
-              textContentType="emailAddress"
-            />
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={20} color="#4B5563" style={styles.icon} />
+                <TextInput
+                  placeholder="Digite seu nome completo*"
+                  value={nome}
+                  onChangeText={setNome}
+                  style={styles.input}
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize='words'
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#4B5563" style={styles.icon} />
-            <TextInput
-              placeholder="Senha"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              style={styles.input}
-              placeholderTextColor="#9CA3AF"
-              textContentType="password"
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={20}
-                color="#4B5563"
-              />
-            </TouchableOpacity>
-          </View>
+              <View style={styles.inputContainer}>
+                <Ionicons name="mail-outline" size={20} color="#4B5563" style={styles.icon} />
+                <TextInput
+                  placeholder="Digite seu Email*"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={styles.input}
+                  placeholderTextColor="#9CA3AF"
+                />
+              </View>
 
-          {error && (
-            <Text style={styles.error}>
-              <Ionicons name="alert-circle-outline" size={16} color="red" /> {error}
-            </Text>
-          )}
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#4B5563" style={styles.icon} />
+                <TextInput
+                  placeholder="Senha"
+                  value={senha}
+                  onChangeText={setSenha}
+                  secureTextEntry={!showPassword}
+                  style={styles.input}
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize='none'
+                  fontWeight='bold'
+                  fontSize={16}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={30}
+                    color="#4B5563"
+                  />
+                </TouchableOpacity>
+              </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
-            )}
-          </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#4B5563" style={styles.icon} />
+                <TextInput
+                  placeholder="Confirmar Senha"
+                  value={confirmarSenha}
+                  onChangeText={setConfirmarSenha}
+                  secureTextEntry={!showPassword}
+                  style={styles.input}
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize='none'
+                   fontWeight='bold'
+                  fontSize={16}
+                />
+              </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>
-              Não tem conta? <Text style={{ fontWeight: 'bold' }}>Cadastre-se</Text>
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
+              <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                <Text style={styles.buttonText}>Cadastrar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                  })
+                }
+              >
+                <Text style={styles.registerLink}>
+                  Já tem conta? <Text style={{ fontWeight: 'bold' }}>Entrar</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </ImageBackground>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
+    flex: 1,
+  },
+  scrollContent: {
     flexGrow: 1,
-    backgroundColor: '#e6f2ec',
-    alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    paddingBottom: 120,
+    alignContent: 'center',
   },
-  logo: {
-    width: 130,
-    height: 130,
-    marginBottom: 15,
-    resizeMode: 'contain',
+  overlay: {
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    marginTop: 150,
+     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
     color: '#065f46',
     fontWeight: 'bold',
     marginBottom: 30,
+    textAlign: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -149,9 +209,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 12,
     height: 50,
-    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -168,7 +227,6 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#10b981',
-    width: '100%',
     height: 50,
     borderRadius: 10,
     justifyContent: 'center',
@@ -185,12 +243,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#065f46',
     fontSize: 14,
-  },
-  error: {
-    color: 'red',
-    marginBottom: 10,
     textAlign: 'center',
   },
 });
 
-export default LoginScreen;
+export default RegisterScreen;

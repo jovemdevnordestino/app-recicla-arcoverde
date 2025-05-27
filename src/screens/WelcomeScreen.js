@@ -1,45 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   Image,
   ImageBackground,
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 
 export default function WelcomeScreen({ navigation }) {
+  const [loading, setLoading] = useState(false);
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
+
+  function handlePress() {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate('Login'); // Navega após o loading
+    }, 300);
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="rgba(0, 0, 0, 0.99)" />
-
       <SafeAreaView style={styles.safeArea}>
+        {/* Loader enquanto imagens carregam */}
+        {!(bgLoaded && logoLoaded) && (
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              backgroundColor: '#000',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 10,
+            }}
+          >
+            <ActivityIndicator size="large" color="#2E7D32" />
+          </View>
+        )}
         <ImageBackground
           source={require('../../assets/fundo.jpg')}
           style={styles.background}
           resizeMode="cover"
+          onLoadEnd={() => setBgLoaded(true)}
         >
           <View style={styles.overlay}>
             <Image
               source={require('../../assets/logo.png')}
               style={styles.logo}
               resizeMode="contain"
+              onLoadEnd={() => setLogoLoaded(true)}
             />
-            <Text style={styles.title}>
-            CONTRIBUINDO PARA UM PLANETA SUSTENTÁVEL
-            </Text>
+            <View>
+              <Text style={styles.title}>
+                CONTRIBUINDO PARA UM PLANETA SUSTENTÁVEL
+              </Text>
+            </View>
           </View>
 
-          {/* Botão fixado na parte inferior */}
           <View style={styles.bottomButtonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate('Login')} // Alteração para "navigate"
+              activeOpacity={0.7}
+              onPress={handlePress}
             >
-              <Text style={styles.buttonText}>Entrar</Text>
+              {/*desabilita enquanto carrega*/}
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Clique aqui para entrar</Text>
+              )}
             </TouchableOpacity>
           </View>
         </ImageBackground>
@@ -91,7 +125,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 23,
     fontWeight: 'bold',
+    fontFamily: 'Roboto',
   },
 });

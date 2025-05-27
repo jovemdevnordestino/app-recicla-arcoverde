@@ -1,14 +1,16 @@
 {
   "expo": {
-    "name": "app-recicla-arcoverde-v2",
+    "name": "Recicla ArcoVerde",
+    "displayName": "Recicla ArcoVerde",
+    "description": "Aplicativo para coleta de materiais recicláveis na cidade de Arcoverde-PE",
     "slug": "app-recicla-arcoverde-v2",
-    "version": "1.0.0",
+    "version": "4.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo-app.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo-app.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,13 +19,30 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo-app.png",
         "backgroundColor": "#ffffff"
+        
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.jeferson4733.appreciclaarcoverdev2",
+      "useNextNotificationsApi": true,
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDcZCQHe4RopTMGIzLnhy9_iH4xTeC2wKE"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4c429362-eece-4e57-81e5-74375ee228a8"
+      }
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
   }
 }

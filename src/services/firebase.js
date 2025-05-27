@@ -2,15 +2,23 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID
+} from '@env'; // <-- altere aqui
 
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDLqzSdSMS2BhMOmZtyzcZniUH608OtJ40",
-  authDomain: "recicla-arcoverde.firebaseapp.com",
-  projectId: "recicla-arcoverde",
-  storageBucket: "recicla-arcoverde.appspot.com",
-  messagingSenderId: "594597215919",
-  appId: "1:594597215919:web:48b8d31c9a4ae72a13de5a"
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID
 };
 
 // Inicializando o Firebase
@@ -18,8 +26,7 @@ const app = initializeApp(firebaseConfig);
 
 // Inicializando o Auth e Firestore
 const auth = getAuth(app);
-const firestore = getFirestore(app);
 const db = getFirestore(app);
 
 // Exportando para uso nos componentes
-export { app, auth, firestore, db };
+export { app, auth, db };
